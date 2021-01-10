@@ -575,7 +575,7 @@ class LaserGcode(inkex.Effect):
         for arg in self.arguments:
             # Stringify add_option arguments
             action = arg["action"] if "action" in arg else "store"
-            arg_type = {str: "str", int: "int", bool: "inkbool"}[arg["type"]]
+            arg_type = {str: str, int: int, bool: inkex.Boolean}[arg["type"]]
             default = arg["type"](arg["default"])
 
             add_option("", arg["name"], action=action, type=arg_type, dest=arg["dest"],
