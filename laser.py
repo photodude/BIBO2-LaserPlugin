@@ -1363,7 +1363,7 @@ class LaserGcode(inkex.Effect):
             doc_height = 1052.3622047
             print_("Overriding height from 100 percents to %s" % doc_height)
 
-        print_("Document height: " + str(doc_height));
+        print_("Document height: " + str(doc_height))
 
         points = points[:2]
 
