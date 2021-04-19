@@ -1365,6 +1365,8 @@ class LaserGcode(inkex.Effect):
 
         print_("Document height: " + str(doc_height));
 
+        points = points[:2]
+
         if self.options.unit == "G21 (All units in mm)":
             points = [[0., 0., 0.], [100., 0., 0.], [0., 100., 0.]]
             orientation_scale = 1
@@ -1373,8 +1375,6 @@ class LaserGcode(inkex.Effect):
             points = [[0., 0., 0.], [5., 0., 0.], [0., 5., 0.]]
             orientation_scale = 90
             print_("orientation_scale < 0 ===> switching to inches units=%0.10f" % orientation_scale)
-
-        points = points[:2]
 
         print_(("using orientation scale", orientation_scale, "i=", points))
         for i in points:
