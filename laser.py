@@ -1060,15 +1060,15 @@ class LaserGcode(inkex.Effect):
                         active_layer_already_has_tool
                         active_layer_already_has_orientation_points
                     """
-        if type_.lower() in re.split("[\s\n,\.]+", errors.lower()):
+        if type_.lower() in re.split(r"[\s\n,\.]+", errors.lower()):
             print_(s)
             inkex.errormsg(s + "\n")
             sys.exit()
-        elif type_.lower() in re.split("[\s\n,\.]+", warnings.lower()):
+        elif type_.lower() in re.split(r"[\s\n,\.]+", warnings.lower()):
             print_(s)
             if not self.options.suppress_all_messages:
                 inkex.errormsg(s + "\n")
-        elif type_.lower() in re.split("[\s\n,\.]+", notes.lower()):
+        elif type_.lower() in re.split(r"[\s\n,\.]+", notes.lower()):
             print_(s)
         else:
             print_(s)
@@ -1190,7 +1190,7 @@ class LaserGcode(inkex.Effect):
                 for path in self.selected_paths[layer]:
                     if self.options.dxfpoints_action == 'replace':
                         path.set("dxfpoint", "1")
-                        r = re.match("^\s*.\s*(\S+)", path.get("d"))
+                        r = re.match(r"^\s*.\s*(\S+)", path.get("d"))
                         if r != None:
                             print_(("got path=", r.group(1)))
                             path.set("d",
