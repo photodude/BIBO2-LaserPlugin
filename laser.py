@@ -321,7 +321,7 @@ def point_to_arc_distance(p, arc):
 
 def csp_to_arc_distance(sp1, sp2, arc1, arc2, tolerance=0.01):  # arc = [start,end,center,alpha]
     n, i = 10, 0
-    d, d1, dl = (0, (0, 0)), (0, (0, 0)), 0
+    d, d1, dl = (0, (0, 0)), (0, (0, 0)), (0,0)
     while i < 1 or (abs(d1[0] - dl[0]) > tolerance and i < 4):
         i += 1
         dl = d1 * 1
