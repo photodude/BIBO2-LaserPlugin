@@ -30,7 +30,8 @@ import simpletransform
 
 import os
 import math
-import bezmisc
+import bezmisc as bezier
+from inkex import bezier
 import re
 import sys
 import time
@@ -86,7 +87,7 @@ if "errormsg" not in dir(inkex):
 
 def bezierslopeatt(xxx_todo_changeme, t):
     ((bx0, by0), (bx1, by1), (bx2, by2), (bx3, by3)) = xxx_todo_changeme
-    ax, ay, bx, by, cx, cy, x0, y0 = bezmisc.bezierparameterize(((bx0, by0), (bx1, by1), (bx2, by2), (bx3, by3)))
+    ax, ay, bx, by, cx, cy, x0, y0 = bezier.bezierparameterize(((bx0, by0), (bx1, by1), (bx2, by2), (bx3, by3)))
     dx = 3 * ax * (t ** 2) + 2 * bx * t + cx
     dy = 3 * ay * (t ** 2) + 2 * by * t + cy
     if dx == dy == 0:
@@ -104,7 +105,7 @@ def bezierslopeatt(xxx_todo_changeme, t):
     return dx, dy
 
 
-bezmisc.bezierslopeatt = bezierslopeatt
+bezier.bezierslopeatt = bezierslopeatt
 
 ################################################################################
 #
@@ -248,7 +249,7 @@ def csp_split(sp1, sp2, t=.5):
 
 
 def csp_curvature_at_t(sp1, sp2, t, depth=3):
-    ax, ay, bx, by, cx, cy, dx, dy = bezmisc.bezierparameterize(csp_segment_to_bez(sp1, sp2))
+    ax, ay, bx, by, cx, cy, dx, dy = bezier.bezierparameterize(csp_segment_to_bez(sp1, sp2))
 
     # curvature = (x'y''-y'x'') / (x'^2+y'^2)^1.5
 
@@ -292,7 +293,7 @@ def csp_at_t(sp1, sp2, t):
 
 def cspseglength(sp1, sp2, tolerance=0.001):
     bez = (sp1[1][:], sp1[2][:], sp2[0][:], sp2[1][:])
-    return bezmisc.bezierlength(bez, tolerance)
+    return bezier.bezierlength(bez, tolerance)
 
 
 #        Distance calculation from point to arc
