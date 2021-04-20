@@ -731,7 +731,7 @@ class LaserGcode(inkex.Effect):
         if group is None:
             group = etree.SubElement(self.layers[min(1, len(self.layers) - 1)], inkex.addNS('g', 'svg'),
                                            {"gcodetools": "Preview group"})
-        s, arcn = '', 0
+        s, arcn = [], 0
 
         a, b, c = [0., 0.], [1., 0.], [0., 1.]
         k = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
@@ -745,7 +745,7 @@ class LaserGcode(inkex.Effect):
             si[0], si[2] = self.transform(si[0], layer, True), (
                 self.transform(si[2], layer, True) if type(si[2]) == type([]) and len(si[2]) == 2 else si[2])
 
-            if s != '':
+            if s: # if s has a value and is not [] "an empty list" changed from check that it's not an empty string ''. empty sequences are false so a not empty list is true 
                 if s[1] == 'line':
                     etree.SubElement(group, inkex.addNS('path', 'svg'),
                                            {
