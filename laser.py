@@ -1343,6 +1343,7 @@ class LaserGcode(inkex.Effect):
     def orientation(self, layer=None):
         print_("entering orientations")
         points = []
+        orientation_scale = 1 # Assume default variable value for All units in mm
         if layer == None:
             layer = self.current_layer if self.current_layer is not None else self.document.getroot()
         if layer in self.orientation_points:
