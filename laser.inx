@@ -17,7 +17,7 @@
 	<param name="filename" type="string" gui-text="Filename:">output.gcode</param>
 	<param name="add-numeric-suffix-to-filename" type="bool" gui-text="Add numeric suffix to filename">true</param>
 
-	<param name="unit" gui-text="All Units (mm or in):">
+	<param name="unit" appearance="radio" gui-text="All Units (mm or in):">
 		<option value="G21 (All units in mm)" translatable="no">mm</option>
 		<option value="G20 (All units in inches)" translatable="no">in</option>
 	</param>
