@@ -30,7 +30,8 @@ import simpletransform
 
 import os
 import math
-import bezmisc
+import bezmisc as bezier
+from inkex import bezier
 import re
 import sys
 import time
@@ -86,7 +87,7 @@ if "errormsg" not in dir(inkex):
 
 def bezierslopeatt(xxx_todo_changeme, t):
     ((bx0, by0), (bx1, by1), (bx2, by2), (bx3, by3)) = xxx_todo_changeme
-    ax, ay, bx, by, cx, cy, x0, y0 = bezmisc.bezierparameterize(((bx0, by0), (bx1, by1), (bx2, by2), (bx3, by3)))
+    ax, ay, bx, by, cx, cy, x0, y0 = bezier.bezierparameterize(((bx0, by0), (bx1, by1), (bx2, by2), (bx3, by3)))
     dx = 3 * ax * (t ** 2) + 2 * bx * t + cx
     dy = 3 * ay * (t ** 2) + 2 * by * t + cy
     if dx == dy == 0:
@@ -104,7 +105,7 @@ def bezierslopeatt(xxx_todo_changeme, t):
     return dx, dy
 
 
-bezmisc.bezierslopeatt = bezierslopeatt
+bezier.bezierslopeatt = bezierslopeatt
 
 ################################################################################
 #
@@ -248,7 +249,7 @@ def csp_split(sp1, sp2, t=.5):
 
 
 def csp_curvature_at_t(sp1, sp2, t, depth=3):
-    ax, ay, bx, by, cx, cy, dx, dy = bezmisc.bezierparameterize(csp_segment_to_bez(sp1, sp2))
+    ax, ay, bx, by, cx, cy, dx, dy = bezier.bezierparameterize(csp_segment_to_bez(sp1, sp2))
 
     # curvature = (x'y''-y'x'') / (x'^2+y'^2)^1.5
 
@@ -292,7 +293,7 @@ def csp_at_t(sp1, sp2, t):
 
 def cspseglength(sp1, sp2, tolerance=0.001):
     bez = (sp1[1][:], sp1[2][:], sp2[0][:], sp2[1][:])
-    return bezmisc.bezierlength(bez, tolerance)
+    return bezier.bezierlength(bez, tolerance)
 
 
 #        Distance calculation from point to arc
@@ -321,7 +322,7 @@ def point_to_arc_distance(p, arc):
 
 def csp_to_arc_distance(sp1, sp2, arc1, arc2, tolerance=0.01):  # arc = [start,end,center,alpha]
     n, i = 10, 0
-    d, d1, dl = (0, (0, 0)), (0, (0, 0)), 0
+    d, d1, dl = (0, (0, 0)), (0, (0, 0)), (0,0)
     while i < 1 or (abs(d1[0] - dl[0]) > tolerance and i < 4):
         i += 1
         dl = d1 * 1
@@ -575,7 +576,7 @@ class LaserGcode(inkex.Effect):
         for arg in self.arguments:
             # Stringify add_option arguments
             action = arg["action"] if "action" in arg else "store"
-            arg_type = {str: "str", int: "int", bool: "inkbool"}[arg["type"]]
+            arg_type = {str: str, int: int, bool: inkex.Boolean}[arg["type"]]
             default = arg["type"](arg["default"])
 
             add_option("", arg["name"], action=action, type=arg_type, dest=arg["dest"],
@@ -730,7 +731,7 @@ class LaserGcode(inkex.Effect):
         if group is None:
             group = etree.SubElement(self.layers[min(1, len(self.layers) - 1)], inkex.addNS('g', 'svg'),
                                            {"gcodetools": "Preview group"})
-        s, arcn = '', 0
+        s, arcn = [], 0
 
         a, b, c = [0., 0.], [1., 0.], [0., 1.]
         k = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
@@ -744,7 +745,7 @@ class LaserGcode(inkex.Effect):
             si[0], si[2] = self.transform(si[0], layer, True), (
                 self.transform(si[2], layer, True) if type(si[2]) == type([]) and len(si[2]) == 2 else si[2])
 
-            if s != '':
+            if s: # if s has a value and is not [] "an empty list" changed from check that it's not an empty string ''. empty sequences are false so a not empty list is true 
                 if s[1] == 'line':
                     etree.SubElement(group, inkex.addNS('path', 'svg'),
                                            {
@@ -1060,15 +1061,15 @@ class LaserGcode(inkex.Effect):
                         active_layer_already_has_tool
                         active_layer_already_has_orientation_points
                     """
-        if type_.lower() in re.split("[\s\n,\.]+", errors.lower()):
+        if type_.lower() in re.split(r"[\s\n,\.]+", errors.lower()):
             print_(s)
             inkex.errormsg(s + "\n")
             sys.exit()
-        elif type_.lower() in re.split("[\s\n,\.]+", warnings.lower()):
+        elif type_.lower() in re.split(r"[\s\n,\.]+", warnings.lower()):
             print_(s)
             if not self.options.suppress_all_messages:
                 inkex.errormsg(s + "\n")
-        elif type_.lower() in re.split("[\s\n,\.]+", notes.lower()):
+        elif type_.lower() in re.split(r"[\s\n,\.]+", notes.lower()):
             print_(s)
         else:
             print_(s)
@@ -1190,7 +1191,7 @@ class LaserGcode(inkex.Effect):
                 for path in self.selected_paths[layer]:
                     if self.options.dxfpoints_action == 'replace':
                         path.set("dxfpoint", "1")
-                        r = re.match("^\s*.\s*(\S+)", path.get("d"))
+                        r = re.match(r"^\s*.\s*(\S+)", path.get("d"))
                         if r != None:
                             print_(("got path=", r.group(1)))
                             path.set("d",
@@ -1341,6 +1342,8 @@ class LaserGcode(inkex.Effect):
     ################################################################################
     def orientation(self, layer=None):
         print_("entering orientations")
+        points = []
+        orientation_scale = 1 # Assume default variable value for All units in mm
         if layer == None:
             layer = self.current_layer if self.current_layer is not None else self.document.getroot()
         if layer in self.orientation_points:
@@ -1363,7 +1366,7 @@ class LaserGcode(inkex.Effect):
             doc_height = 1052.3622047
             print_("Overriding height from 100 percents to %s" % doc_height)
 
-        print_("Document height: " + str(doc_height));
+        print_("Document height: " + str(doc_height))
 
         if self.options.unit == "G21 (All units in mm)":
             points = [[0., 0., 0.], [100., 0., 0.], [0., 100., 0.]]
